@@ -47,9 +47,9 @@ class MusicDownloaderApp:
 
     def build_ui(self):
         self.build_thumbnail_section()
-        self.url_entry = self.build_entry("YouTube Video URL:", "https://youtu.be/example", self.start_load_thumbnail_thread)
-        self.custom_title_entry = self.build_entry("Title :", "e.g. My Song")
-        self.custom_author_entry = self.build_entry("Author :", "e.g. Artist")
+        self.url_entry = self.build_entry("𝐘𝐎𝐔𝐭𝐮𝐛𝐞 Video URL:", "https://youtu.be/example", self.start_load_thumbnail_thread)
+        self.custom_title_entry = self.build_entry("♪ Title :", "e.g. My Song")
+        self.custom_author_entry = self.build_entry("⭐ Author :", "e.g. Artist")
         self.build_output_label()
         self.build_download_button()
         self.build_song_list()
@@ -119,38 +119,70 @@ class MusicDownloaderApp:
         tk.Label(wrapper, text="🎵  Downloaded Songs", font=(self.font, 11, "bold"),
                 fg="white", bg=self.colors["bg"]).pack(anchor='w', pady=(0, 8))
 
+        # --- Start of Treeview changes ---
         listbox_frame = tk.Frame(wrapper, bg=self.colors["bg"])
         listbox_frame.pack(fill="both", expand=True)
 
-        scrollbar = tk.Scrollbar(listbox_frame)
-        scrollbar.pack(side="right", fill="y")
-
-        self.song_listbox = tk.Listbox(
+        # Define columns for the Treeview
+        columns = ('ID', 'Title', 'Author')
+        self.song_list_tree = ttk.Treeview(
             listbox_frame,
-            height=7,
-            bg=self.colors["entry_bg"],
-            fg="white",
-            font=(self.font, 10),
-            relief="flat",
-            highlightthickness=1,
-            highlightcolor=self.colors["accent"],
-            selectbackground=self.colors["accent"],
-            activestyle='none',
-            yscrollcommand=scrollbar.set
+            columns=columns,
+            show='headings', # This makes the column headers visible
+            height=7, # Set initial height
+            selectmode='browse' # Allow single selection
         )
-        self.song_listbox.pack(side="left", fill="both", expand=True)
 
-        scrollbar.config(command=self.song_listbox.yview)
+        # Configure column headings and their properties
+        self.song_list_tree.heading('ID', text='ID', anchor=tk.W)
+        self.song_list_tree.heading('Title', text='Title', anchor=tk.W)
+        self.song_list_tree.heading('Author', text='Author', anchor=tk.W)
+
+        # Configure column widths (adjust as needed for your content)
+        self.song_list_tree.column('ID', width=50, stretch=tk.NO, anchor=tk.CENTER) # Fixed width, centered
+        self.song_list_tree.column('Title', width=180, stretch=tk.YES, anchor=tk.W)
+        self.song_list_tree.column('Author', width=120, stretch=tk.YES, anchor=tk.W)
+
+        # Apply modern styling to the Treeview
+        style = ttk.Style()
+        # Use 'clam' theme as you already have it, then customize
+        style.configure("Treeview",
+                        background=self.colors["entry_bg"],
+                        foreground=self.colors["text"],
+                        fieldbackground=self.colors["entry_bg"],
+                        font=(self.font, 10),
+                        rowheight=25) # Adjust row height for better spacing
+        style.map('Treeview',
+                  background=[('selected', self.colors["accent"])],
+                  foreground=[('selected', 'black')]) # Text color when selected
+
+        style.configure("Treeview.Heading",
+                        font=(self.font, 10, 'bold'),
+                        background=self.colors["accent"], # Header background
+                        foreground="black", # Header text color
+                        relief="flat")
+        style.map("Treeview.Heading",
+                  background=[('active', '#1AA34A')]) # Hover effect for header
+
+        # Add a scrollbar
+        scrollbar = ttk.Scrollbar(listbox_frame, orient=tk.VERTICAL, command=self.song_list_tree.yview)
+        self.song_list_tree.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        self.song_list_tree.pack(side="left", fill="both", expand=True)
+        # --- End of Treeview changes ---
 
         self.refresh_song_list()
 
     def refresh_song_list(self):
-        self.song_listbox.delete(0, tk.END)
-        self.song_listbox.insert(tk.END, "ID  | Title           | Author")
-        self.song_listbox.insert(tk.END, "----------------------------------")
+        # Clear existing items from the Treeview
+        for item in self.song_list_tree.get_children():
+            self.song_list_tree.delete(item)
+
+        # Populate the Treeview
         for id, title, author, *_ in get_all_songs():
-            line = f"{str(id):<3} | {title[:15]:<15} | {author[:12]:<12}"
-            self.song_listbox.insert(tk.END, line)
+            # Insert values directly into the Treeview; it handles column alignment
+            self.song_list_tree.insert('', tk.END, values=(id, title, author))
 
     def play_video(self):
         url = self.url_entry.get().strip()
