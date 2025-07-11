@@ -12,8 +12,18 @@ class MusicDownloaderApp:
     def __init__(self, root):
         self.root = root
         self.root.title("0Music - Free Downloader YouTube Audio")
-        self.root.geometry("338x730")
+        self.root.geometry("338x755")
         self.root.configure(bg="#000000")
+        
+        try:
+            original_logo = Image.open("assets/logo.png")
+            # Ubah ukuran menjadi 338x180 agar sesuai dengan ukuran thumbnail video
+            resized_logo = original_logo.resize((338, 180), Image.LANCZOS)
+            self.default_logo_image = ImageTk.PhotoImage(resized_logo)
+        except FileNotFoundError:
+            print("Error: assets/logo.png not found. Please ensure the path is correct.")
+        except Exception as e:
+            print(f"Error loading or resizing default logo image: {e}")
 
         self.font = "Segoe UI"
         self.colors = {
@@ -27,6 +37,7 @@ class MusicDownloaderApp:
             "text": "#FFFFFF",
             "muted": "#AAAAAA",
             "error": "#FF4C4C"
+            
         }
 
         style = ttk.Style()
@@ -61,6 +72,10 @@ class MusicDownloaderApp:
 
         self.thumbnail_label = tk.Label(frame, bg=self.colors["bg"])
         self.thumbnail_label.pack(expand=True, fill='both')
+
+        if self.default_logo_image:
+            self.thumbnail_label.config(image=self.default_logo_image)
+            self.current_thumbnail_image = self.default_logo_image 
 
         self.play_button = tk.Button(
             frame, image=self.play_icon_image, command=self.play_video,
@@ -191,63 +206,118 @@ class MusicDownloaderApp:
         else:
             messagebox.showerror("Invalid URL", "Please enter a valid YouTube link.")
 
+    # settings/gui.py
+
+   # Di start_load_thumbnail_thread:
     def start_load_thumbnail_thread(self, event=None):
+        url = self.url_entry.get().strip()
+        if not url or url == "https://youtu.be/example":
+            self.clear_thumbnail()
+            return
+
+        # Tampilkan teks loading sebelum memulai progress bar
+        self.thumbnail_label.config(image="", text="Loading thumbnail...", fg=self.colors["muted"])
+        self.play_button.lower() # Sembunyikan tombol play sementara
+
         self.thumb_progress.pack()
+        self.thumb_progress.start()
         threading.Thread(target=self.load_thumbnail, daemon=True).start()
+
+    # Di load_thumbnail, jika ada error atau tidak ada thumbnail:
+    # Ganti bagian ini:
+    # self.root.after(0, lambda: self.thumbnail_label.config(image="", text="No thumbnail", fg=self.colors["muted"]))
+    # Menjadi:
+    # self.root.after(0, lambda: self.thumbnail_label.config(image="", text="Failed to load thumbnail.", fg=self.colors["error"]))
 
     def load_thumbnail(self):
         url = self.url_entry.get().strip()
-        if not url:
-            self.clear_thumbnail()
+        # --- Tambahkan Kode Ini ---
+        if not url or url == "https://youtu.be/example": # Periksa lagi URL di thread
+            self.root.after(0, self.clear_thumbnail)
             return
+        # --- Akhir Penambahan Kode ---
+
         try:
-            self.root.after(0, self.thumb_progress.start)
+            # ... kode yang sudah ada ...
             img = extract_thumbnail(url)
             if img:
-                self.thumbnail_image = ImageTk.PhotoImage(img.resize((338, 180)))
+                # --- Modifikasi Ukuran Gambar Thumbnail ---
+                self.current_thumbnail_image = ImageTk.PhotoImage(img.resize((338, 180), Image.LANCZOS))
+                # --- Akhir Modifikasi Ukuran Gambar Thumbnail ---
                 self.root.after(0, self.update_thumbnail_ui)
             else:
-                self.root.after(0, lambda: self.thumbnail_label.config(text="No thumbnail", fg=self.colors["muted"]))
+                self.root.after(0, lambda: self.thumbnail_label.config(image="", text="No thumbnail", fg=self.colors["muted"])) # Kosongkan image
                 self.root.after(0, self.play_button.lower)
         except Exception as e:
-            self.root.after(0, lambda: self.thumbnail_label.config(text=f"Error:\n{e}", fg=self.colors["error"]))
+            self.root.after(0, lambda: self.thumbnail_label.config(image="", text=f"Error:\n{e}", fg=self.colors["error"])) # Kosongkan image
+            self.root.after(0, self.play_button.lower)
         finally:
             self.root.after(0, self.thumb_progress.stop)
             self.root.after(0, self.thumb_progress.pack_forget)
 
     def update_thumbnail_ui(self):
-        self.thumbnail_label.config(image=self.thumbnail_image)
+        self.thumbnail_label.config(image=self.current_thumbnail_image, text="") # Pastikan teks dikosongkan
         self.play_button.lift()
 
+    # settings/gui.py
+
     def clear_thumbnail(self):
-        self.thumbnail_label.config(image="", text="")
+        # --- Modifikasi Kode Ini ---
+        if self.default_logo_image:
+            self.thumbnail_label.config(image=self.default_logo_image, text="") # Tampilkan logo default
+            self.current_thumbnail_image = self.default_logo_image
+        else:
+            self.thumbnail_label.config(image="", text="") # Jika logo default tidak ada, kosongkan
+            self.current_thumbnail_image = None
         self.play_button.lower()
         self.thumb_progress.pack_forget()
-
+        # --- Akhir Modifikasi Kode ---
+        
+        # Di start_download_thread:
+      # Di start_download_thread:
     def start_download_thread(self):
+        self.download_button.config(state=tk.DISABLED, text="Downloading...") # Nonaktifkan tombol dan ubah teks
         self.download_progress.pack()
         threading.Thread(target=self.download_audio_process, daemon=True).start()
 
+    # Di download_audio_process, di bagian finally:
     def download_audio_process(self):
-        url = self.url_entry.get().strip()
-        title = self.custom_title_entry.get().strip()
-        author = self.custom_author_entry.get().strip()
+        # Di start_download_thread:
+        # self.download_button.config(state=tk.DISABLED, text="Downloading...") # Nonaktifkan tombol dan ubah teks
+        # self.download_progress.pack()
+        # threading.Thread(target=self.download_audio_process, daemon=True).start()
 
-        if not url:
-            self.show_message("Missing URL", warning=True)
-            return
-
+        # Di download_audio_process, di bagian finally:
         try:
-            self.download_progress.start()
+            url = self.url_entry.get().strip()
+            print(f"URL retrieved: '{url}'")
+            title = self.custom_title_entry.get().strip()
+            author = self.custom_author_entry.get().strip()
+            print(f"Title: '{title}', Author: '{author}'")
+
+            if not url:
+                self.root.after(0, lambda: self.show_message("Missing URL", warning=True))
+                return
+
+            # --- BARIS PENTING YANG HARUS DIPINDAHKAN KE SINI ---
             song_title = download_audio(url, title or None, author or None)
             self.root.after(0, self.refresh_song_list)
             self.root.after(0, lambda: messagebox.showinfo("Downloaded", f"{song_title} has been saved."))
+            # --- AKHIR BARIS PENTING ---
+
         except Exception as e:
-            self.root.after(0, lambda: messagebox.showerror("Error", str(e)))
+            print(f"Error within download_audio_process: {e}") # Pesan error yang lebih jelas
+            self.root.after(0, lambda: messagebox.showerror("Download Error", f"An unexpected error occurred: {e}"))
         finally:
             self.root.after(0, self.download_progress.stop)
             self.root.after(0, self.download_progress.pack_forget)
+            self.root.after(0, lambda: self.download_button.config(state=tk.NORMAL, text="Download"))
 
+    def show_message(self, text, warning=False):
+        if warning:
+            self.root.after(0, lambda: messagebox.showwarning("Warning", text))
+        else:
+            self.root.after(0, lambda: messagebox.showinfo("Info", text))
     def show_message(self, text, warning=False):
         if warning:
             self.root.after(0, lambda: messagebox.showwarning("Warning", text))
