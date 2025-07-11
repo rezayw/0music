@@ -1,6 +1,9 @@
 # 🎵 0music Downloader
 
-**0music Downloader** is a lightweight, offline music downloader built with Python, using `tkinter`, `sqlite`, and multimedia processing modules. This is a desktop application — **no browser, no authentication, no ads** ~EXPERIMENTAL ONLY~.
+<img width="327" height="752" alt="Screenshot 2025-07-12 at 05 35 45" src="https://github.com/user-attachments/assets/08538513-1826-473f-81fa-776f201d34be" />
+
+
+**0music Downloader** is a lightweight, offline music downloader built with Python, using `tkinter`, `sqlite`, and multimedia processing modules. This is a desktop application — **no browser, no authentication, no ads** EXPERIMENTAL ONLY.
 
 ---
 
