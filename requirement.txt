@@ -1,0 +1,5 @@
+yt-dlp
+pillow
+requests
+brew reinstall tcl-tk
+brew install thinker
