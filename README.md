@@ -32,7 +32,7 @@
 ## 🛠️ Installation
 
 ```bash
-git clone https://github.com/yourusername/0music-downloader.git
+git clone https://github.com/y](https://github.com/rezayw/0music.git)
 cd 0music-downloader
 pip install -r requirements.txt
 ```
