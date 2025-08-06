@@ -7,8 +7,6 @@ from .utils import clear_placeholder, restore_placeholder
 from .config import OUTPUT_DIR
 from .database import init_db, get_all_songs
 from .downloader import download_audio, extract_thumbnail
-from .apply_metadata import apply_metadata
-
 
 class MusicDownloaderApp:
     def __init__(self, root):
