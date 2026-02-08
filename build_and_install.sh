@@ -3,6 +3,18 @@
 # Build and Install Script for 0music
 # This script builds the app and installs it to /Applications/
 
+# Activate virtual environment if it exists
+if [ -d "venv" ]; then
+    echo "🐍 Activating virtual environment..."
+    source venv/bin/activate
+fi
+
+# Ensure pyinstaller is installed
+if ! command -v pyinstaller &> /dev/null; then
+    echo "📦 Installing pyinstaller..."
+    pip install pyinstaller
+fi
+
 echo "🧹 Cleaning old build artifacts..."
 rm -rf build dist 0music.spec
 
