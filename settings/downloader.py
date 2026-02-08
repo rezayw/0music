@@ -14,7 +14,9 @@ from .apply_metadata import apply_metadata
 from datetime import datetime
 
 def get_ffmpeg_path():
-    """Get the path to bundled ffmpeg binaries."""
+    """Get the path to bundled ffmpeg binaries, or None to use system ffmpeg."""
+    import subprocess
+    
     if getattr(sys, 'frozen', False):
         # Running in PyInstaller bundle
         base_path = sys._MEIPASS
@@ -23,16 +25,26 @@ def get_ffmpeg_path():
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     bin_path = os.path.join(base_path, 'bin')
-    return bin_path
+    ffmpeg_path = os.path.join(bin_path, 'ffmpeg')
+    
+    # Check if bundled ffmpeg exists and works
+    if os.path.exists(ffmpeg_path):
+        try:
+            subprocess.run([ffmpeg_path, '-version'], capture_output=True, check=True, timeout=5)
+            return bin_path
+        except (subprocess.SubprocessError, OSError):
+            pass  # Bundled ffmpeg doesn't work, fall back to system
+    
+    # Return None to let yt-dlp find system ffmpeg
+    return None
 
 def get_ydl_opts(quiet=True):
     """Get common yt-dlp options with bot bypass settings."""
     ffmpeg_location = get_ffmpeg_path()
 
-    return {
+    opts = {
         'quiet': quiet,
         'no_warnings': True,
-        'ffmpeg_location': ffmpeg_location,
         'extractor_args': {
             'youtube': {
                 'player_client': ['web', 'android'],
@@ -44,6 +56,12 @@ def get_ydl_opts(quiet=True):
             'Accept-Language': 'en-us,en;q=0.5',
         }
     }
+    
+    # Only set ffmpeg_location if we have a bundled ffmpeg that works
+    if ffmpeg_location:
+        opts['ffmpeg_location'] = ffmpeg_location
+    
+    return opts
 
 def download_thumbnail(thumb_url, save_path):
     """Download thumbnail image and save to file."""
