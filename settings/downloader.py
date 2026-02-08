@@ -9,18 +9,30 @@ from .config import OUTPUT_DIR
 from .database import add_song
 from datetime import datetime
 
-def extract_thumbnail(url):
-    # KODE INI DIKEMBALIKAN KE VERSI SEBELUMNYA (TANPA TRY-EXCEPT KOMPLEKS DI SINI)
-    # Anda bisa tambahkan kembali error handling jika diperlukan setelah download_audio beres
+def extract_video_info(url):
+    """Extract video metadata including thumbnail, title, and author."""
     with YoutubeDL({'quiet': True}) as ydl:
         info = ydl.extract_info(url, download=False)
+        
+        # Get thumbnail
         thumb_url = info.get('thumbnail')
-        if not thumb_url:
-            return None
-        response = requests.get(thumb_url)
-        img = Image.open(BytesIO(response.content))
-        img.thumbnail((320, 180))
-        return img
+        img = None
+        if thumb_url:
+            response = requests.get(thumb_url)
+            img = Image.open(BytesIO(response.content))
+            img.thumbnail((320, 180))
+        
+        return {
+            'thumbnail': img,
+            'title': info.get('title', ''),
+            'author': info.get('uploader', '') or info.get('channel', '')
+        }
+
+
+# Keep old function name for backward compatibility
+def extract_thumbnail(url):
+    info = extract_video_info(url)
+    return info.get('thumbnail')
 
 def download_audio(url, custom_title=None, custom_author=None):
     try: # Kita tetap pertahankan try-except dasar di sini untuk menangkap kegagalan utama
