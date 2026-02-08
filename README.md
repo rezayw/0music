@@ -67,6 +67,25 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## 📦 Build & Install (macOS)
+
+Build and automatically install to Applications folder:
+
+```bash
+./build_and_install.sh
+```
+
+This will:
+- Clean previous build artifacts
+- Build the macOS application bundle
+- Install to `/Applications/0music.app`
+- The app will save downloads to your Music app automatically
+
+After installation, launch from:
+- **Launchpad**
+- **Spotlight** (⌘+Space, type "0music")
+- `/Applications/0music.app`
+
 ---
 
 ## 📦 Dependencies

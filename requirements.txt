@@ -3,3 +3,4 @@ pillow>=10.0.0
 requests>=2.31.0
 mutagen>=1.47.0
 python-vlc>=3.0.0
+pyinstaller>=5.1

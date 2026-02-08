@@ -3,6 +3,7 @@
 from mutagen.id3 import ID3, TIT2, TPE1, TALB, APIC
 from mutagen.mp3 import MP3
 import os
+import mimetypes
 
 def apply_metadata(file_path, title, artist, album, thumbnail_path=None):
     try:
@@ -17,9 +18,14 @@ def apply_metadata(file_path, title, artist, album, thumbnail_path=None):
 
         if thumbnail_path and os.path.exists(thumbnail_path):
             with open(thumbnail_path, 'rb') as img:
+                # Detect MIME type from file extension
+                mime_type, _ = mimetypes.guess_type(thumbnail_path)
+                if not mime_type or not mime_type.startswith('image/'):
+                    mime_type = 'image/jpeg'  # Default fallback
+
                 audio["APIC"] = APIC(
                     encoding=3,
-                    mime="image/jpeg",
+                    mime=mime_type,
                     type=3,
                     desc=u"Cover",
                     data=img.read()

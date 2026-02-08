@@ -3,6 +3,8 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageTk, ImageDraw
 import threading
 import webbrowser
+import os
+import sys
 from .utils import clear_placeholder, restore_placeholder
 from .config import OUTPUT_DIR
 from .database import init_db, get_all_songs
@@ -15,6 +17,17 @@ try:
 except ImportError:
     VLC_AVAILABLE = False
     print("Warning: python-vlc not installed. Audio preview disabled.")
+
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller bundle."""
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running in development
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    return os.path.join(base_path, relative_path)
 
 
 class MusicDownloaderApp:
@@ -38,11 +51,12 @@ class MusicDownloaderApp:
         # Load default logo
         self.default_logo_image = None
         try:
-            original_logo = Image.open("assets/logo.png")
+            logo_path = get_resource_path("assets/logo.png")
+            original_logo = Image.open(logo_path)
             resized_logo = original_logo.resize((338, 190), Image.LANCZOS)
             self.default_logo_image = ImageTk.PhotoImage(resized_logo)
         except FileNotFoundError:
-            print("Warning: assets/logo.png not found.")
+            print(f"Warning: assets/logo.png not found at {logo_path}")
         except Exception as e:
             print(f"Error loading default logo: {e}")
 

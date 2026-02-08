@@ -5,6 +5,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 import os
+import sys
 import tempfile
 from .utils import sanitize_filename
 from .config import OUTPUT_DIR
@@ -12,11 +13,26 @@ from .database import add_song
 from .apply_metadata import apply_metadata
 from datetime import datetime
 
+def get_ffmpeg_path():
+    """Get the path to bundled ffmpeg binaries."""
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running in development
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    bin_path = os.path.join(base_path, 'bin')
+    return bin_path
+
 def get_ydl_opts(quiet=True):
     """Get common yt-dlp options with bot bypass settings."""
+    ffmpeg_location = get_ffmpeg_path()
+
     return {
         'quiet': quiet,
         'no_warnings': True,
+        'ffmpeg_location': ffmpeg_location,
         'extractor_args': {
             'youtube': {
                 'player_client': ['web', 'android'],
