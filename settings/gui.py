@@ -98,6 +98,9 @@ class MusicDownloaderApp:
         # Song list data
         self.all_songs = []
 
+        self.genre_options = [
+            "Pop", "Rock", "Hip-Hop", "Jazz", "Classical", "Electronic", "Country", "R&B", "Reggae", "Blues", "Other"
+        ]
         self.build_ui()
         
         # Bind cleanup on window close
@@ -135,6 +138,13 @@ class MusicDownloaderApp:
         self.url_entry = self.build_entry("YouTube Video URL:", self.url_placeholder, self.start_load_thumbnail_thread)
         self.custom_title_entry = self.build_entry("Title:", self.title_placeholder)
         self.custom_author_entry = self.build_entry("Author:", self.author_placeholder)
+        self.genre_var = tk.StringVar(value=self.genre_options[0])
+        genre_frame = tk.Frame(self.root, bg=self.colors["bg"])
+        genre_frame.pack(pady=5, fill="x", padx=15)
+        genre_label = tk.Label(genre_frame, text="Genre:", fg=self.colors["placeholder_fg"], bg=self.colors["bg"], font=(self.font, 9, "bold"))
+        genre_label.pack(anchor="w")
+        self.genre_dropdown = ttk.Combobox(genre_frame, textvariable=self.genre_var, values=self.genre_options, state="readonly", font=(self.font, 11))
+        self.genre_dropdown.pack(fill="x", ipady=2)
         self.build_output_label()
         self.build_download_button()
         self.build_song_list()
@@ -455,12 +465,13 @@ class MusicDownloaderApp:
             url = self.get_entry_value(self.url_entry, self.url_placeholder)
             title = self.get_entry_value(self.custom_title_entry, self.title_placeholder)
             author = self.get_entry_value(self.custom_author_entry, self.author_placeholder)
+            genre = self.genre_var.get()
 
             if not url:
                 self.root.after(0, lambda: messagebox.showwarning("Warning", "Missing URL"))
                 return
 
-            song_title = download_audio(url, title or None, author or None)
+            song_title = download_audio(url, title or None, author or None, genre or None)
             self.root.after(0, self.refresh_song_list)
             self.root.after(0, lambda st=song_title: messagebox.showinfo("Downloaded", f"'{st}' has been saved."))
 

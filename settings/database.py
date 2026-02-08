@@ -9,6 +9,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             author TEXT,
+            genre TEXT,
             downloaded DATETIME DEFAULT CURRENT_TIMESTAMP,
             filename TEXT,
             lurl TEXT
@@ -17,10 +18,10 @@ def init_db():
     conn.commit()
     conn.close()
 
-def add_song(title, filename, author, downloaded, lurl):
+def add_song(title, filename, author, genre, downloaded, lurl):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO music (title, author, downloaded, filename, lurl) VALUES (?, ?, ?, ?, ?)', (title, author, downloaded, filename, lurl))
+    cursor.execute('INSERT INTO music (title, author, genre, downloaded, filename, lurl) VALUES (?, ?, ?, ?, ?, ?)', (title, author, genre, downloaded, filename, lurl))
     conn.commit()
     conn.close()
 

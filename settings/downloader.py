@@ -146,7 +146,7 @@ def extract_thumbnail(url):
     info = extract_video_info(url)
     return info.get('thumbnail')
 
-def download_audio(url, custom_title=None, custom_author=None):
+def download_audio(url, custom_title=None, custom_author=None, custom_genre=None):
     """Download audio from YouTube with full metadata and cover art."""
     temp_cover = None
     try:
@@ -158,6 +158,7 @@ def download_audio(url, custom_title=None, custom_author=None):
         display_title = custom_title or info.get('title', 'Unknown Title')
         display_author = custom_author or info.get('uploader', '') or info.get('channel', 'Unknown Artist')
         album = info.get('album', '') or display_title  # Use title as album if not available
+        genre = custom_genre or info.get('genre') or None
         
         # Get best thumbnail URL
         thumb_url = None
@@ -191,7 +192,6 @@ def download_audio(url, custom_title=None, custom_author=None):
 
 
         # Download and embed cover art (always apply metadata before moving)
-        genre = info.get('genre') or None
         if thumb_url:
             temp_cover = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False).name
             cover_path = download_thumbnail(thumb_url, temp_cover)
@@ -214,7 +214,7 @@ def download_audio(url, custom_title=None, custom_author=None):
             except Exception as move_err:
                 print(f"Warning: Could not move to Music auto-import folder: {move_err}")
 
-        add_song(display_title, filename, author=display_author, downloaded=datetime.now(), lurl=url)
+        add_song(display_title, filename, display_author, genre, datetime.now(), url)
         return display_title
         
     except Exception as e:
