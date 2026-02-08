@@ -21,6 +21,7 @@ rm -rf build dist 0music.spec
 echo "🔨 Building 0music.app..."
 pyinstaller --name="0music" \
   --windowed \
+  --noconfirm \
   --icon="0music.icns" \
   --add-data="assets:assets" \
   --hidden-import="PIL._tkinter_finder" \

@@ -14,28 +14,33 @@ from .apply_metadata import apply_metadata
 from datetime import datetime
 
 def get_ffmpeg_path():
-    """Get the path to bundled ffmpeg binaries, or None to use system ffmpeg."""
+    """Get the path to ffmpeg binaries (system installation)."""
     import subprocess
+    import shutil
     
-    if getattr(sys, 'frozen', False):
-        # Running in PyInstaller bundle
-        base_path = sys._MEIPASS
-    else:
-        # Running in development
-        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    bin_path = os.path.join(base_path, 'bin')
-    ffmpeg_path = os.path.join(bin_path, 'ffmpeg')
+    # Common ffmpeg locations on macOS
+    common_paths = [
+        '/opt/homebrew/bin',  # Apple Silicon Homebrew
+        '/usr/local/bin',     # Intel Homebrew
+        '/usr/bin',           # System
+    ]
     
-    # Check if bundled ffmpeg exists and works
-    if os.path.exists(ffmpeg_path):
-        try:
-            subprocess.run([ffmpeg_path, '-version'], capture_output=True, check=True, timeout=5)
-            return bin_path
-        except (subprocess.SubprocessError, OSError):
-            pass  # Bundled ffmpeg doesn't work, fall back to system
+    # Check common locations for ffmpeg
+    for path in common_paths:
+        ffmpeg = os.path.join(path, 'ffmpeg')
+        ffprobe = os.path.join(path, 'ffprobe')
+        if os.path.exists(ffmpeg) and os.path.exists(ffprobe):
+            try:
+                subprocess.run([ffmpeg, '-version'], capture_output=True, check=True, timeout=5)
+                return path
+            except (subprocess.SubprocessError, OSError):
+                continue
     
-    # Return None to let yt-dlp find system ffmpeg
+    # Try to find via shutil.which (works in development)
+    ffmpeg_which = shutil.which('ffmpeg')
+    if ffmpeg_which:
+        return os.path.dirname(ffmpeg_which)
+    
     return None
 
 def get_ydl_opts(quiet=True):
@@ -57,9 +62,11 @@ def get_ydl_opts(quiet=True):
         }
     }
     
-    # Only set ffmpeg_location if we have a bundled ffmpeg that works
+    # Only set ffmpeg_location if we found ffmpeg
     if ffmpeg_location:
         opts['ffmpeg_location'] = ffmpeg_location
+    else:
+        raise RuntimeError("FFmpeg not found. Please install it: brew install ffmpeg")
     
     return opts
 
@@ -162,6 +169,7 @@ def download_audio(url, custom_title=None, custom_author=None):
             thumb_url = info.get('thumbnail')
         
         safe_title = sanitize_filename(display_title)
+
         outtmpl = f"{OUTPUT_DIR}/{safe_title}.%(ext)s"
 
         ydl_opts = get_ydl_opts()
@@ -180,8 +188,9 @@ def download_audio(url, custom_title=None, custom_author=None):
 
         filename = f"{safe_title}.mp3"
         filepath = os.path.join(OUTPUT_DIR, filename)
-        
-        # Download and embed cover art
+
+
+        # Download and embed cover art (always apply metadata before moving)
         if thumb_url:
             temp_cover = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False).name
             cover_path = download_thumbnail(thumb_url, temp_cover)
@@ -191,7 +200,19 @@ def download_audio(url, custom_title=None, custom_author=None):
             # Apply metadata without cover
             if os.path.exists(filepath):
                 apply_metadata(filepath, display_title, display_author, album, None)
-        
+
+        # If Music auto-import exists, move the file there after all processing
+        from .config import MUSIC_AUTO_ADD, MUSIC_AUTO_ADD_EXISTS
+        finalpath = filepath
+        if MUSIC_AUTO_ADD_EXISTS:
+            import shutil
+            dest = os.path.join(MUSIC_AUTO_ADD, filename)
+            try:
+                shutil.move(filepath, dest)
+                finalpath = dest
+            except Exception as move_err:
+                print(f"Warning: Could not move to Music auto-import folder: {move_err}")
+
         add_song(display_title, filename, author=display_author, downloaded=datetime.now(), lurl=url)
         return display_title
         
