@@ -1,31 +1,54 @@
-venv
-/venv
-/venv/
-/music/*
-music/*
-/__pycache__/
+# Virtual environment
+venv/
+
+# Music downloads
+music/
+
+# Python
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Database
 *.db
 *.sqlite3
+
+# Logs
 *.log
+
+# Packaging
 *.egg
-*.egg-info
-*.dist-info
-*.DS_Store
-*.idea
-*.vscode
+*.egg-info/
+*.dist-info/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Editor temp files
 *.swp
 *.bak
 *.tmp
 *.orig
-*.coverage
-*.pytest_cache
-*.mypy_cache
-*.tox
-*.ipynb_checkpoints
-*.env
+
+# Testing/CI
+.coverage
+.pytest_cache/
+.mypy_cache/
+.tox/
+.ipynb_checkpoints/
+
+# Environment
+.env
 .env.local
 .env.production
 .env.development
+
+# PyInstaller
+build/
+dist/
+*.spec
