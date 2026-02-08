@@ -39,7 +39,7 @@ class MusicDownloaderApp:
         self.default_logo_image = None
         try:
             original_logo = Image.open("assets/logo.png")
-            resized_logo = original_logo.resize((338, 180), Image.LANCZOS)
+            resized_logo = original_logo.resize((338, 190), Image.LANCZOS)
             self.default_logo_image = ImageTk.PhotoImage(resized_logo)
         except FileNotFoundError:
             print("Warning: assets/logo.png not found.")
@@ -123,7 +123,8 @@ class MusicDownloaderApp:
         self.build_song_list()
 
     def build_thumbnail_section(self):
-        frame = tk.Frame(self.root, width=338, height=180, bg=self.colors["bg"])
+        # Frame with 16:9 aspect ratio for YouTube thumbnails
+        frame = tk.Frame(self.root, width=338, height=190, bg=self.colors["bg"])
         frame.pack(pady=10)
         frame.pack_propagate(False)
 
@@ -340,10 +341,11 @@ class MusicDownloaderApp:
             self.current_stream_url = stream_url
             
             if img:
-                self.current_thumbnail_image = ImageTk.PhotoImage(img.resize((338, 180), Image.LANCZOS))
+                # Resize to fit preview area (338x190 for 16:9 aspect)
+                self.current_thumbnail_image = ImageTk.PhotoImage(img.resize((338, 190), Image.LANCZOS))
                 self.root.after(0, self.update_thumbnail_ui)
             else:
-                self.root.after(0, lambda: self.thumbnail_label.config(image="", text="No thumbnail available", fg=self.colors["muted"]))
+                self.root.after(0, lambda: self.thumbnail_label.config(image="", text="No thumbnail", fg=self.colors["muted"]))
                 self.root.after(0, self.play_button.lower)
             
             if title:
