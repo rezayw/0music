@@ -3,7 +3,9 @@ from PyInstaller.utils.hooks import collect_all
 
 datas = [('assets', 'assets')]
 binaries = [('bin/ffmpeg', 'bin'), ('bin/ffprobe', 'bin')]
-hiddenimports = ['PIL._tkinter_finder', 'tkinter', 'tkinter.ttk', 'vlc', 'mutagen', 'yt_dlp']
+hiddenimports = ['PIL._tkinter_finder', 'PIL', 'PIL.Image', 'PIL.ImageTk', 'PIL.ImageDraw', 'tkinter', 'tkinter.ttk', 'vlc', 'mutagen', 'yt_dlp']
+tmp_ret = collect_all('PIL')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('yt_dlp')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
