@@ -23,8 +23,6 @@ pyinstaller --name="0music" \
   --windowed \
   --icon="0music.icns" \
   --add-data="assets:assets" \
-  --add-binary="bin/ffmpeg:bin" \
-  --add-binary="bin/ffprobe:bin" \
   --hidden-import="PIL._tkinter_finder" \
   --hidden-import="PIL" \
   --hidden-import="PIL.Image" \

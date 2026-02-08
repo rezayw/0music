@@ -38,7 +38,7 @@
 - Python 3.x
 - `tkinter` (install via your package manager)
 - VLC Media Player (for audio preview feature)
-- FFmpeg (for audio conversion)
+- **FFmpeg** (REQUIRED for downloading and audio conversion)
 
 ### macOS
 ```bash
@@ -49,6 +49,8 @@ brew install python-tk vlc ffmpeg
 ```bash
 sudo apt install python3-tk vlc ffmpeg
 ```
+
+> **Note:** FFmpeg must be installed on your system. The app uses your system's ffmpeg for audio processing.
 
 ---
 
