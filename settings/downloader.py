@@ -191,15 +191,16 @@ def download_audio(url, custom_title=None, custom_author=None):
 
 
         # Download and embed cover art (always apply metadata before moving)
+        genre = info.get('genre') or None
         if thumb_url:
             temp_cover = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False).name
             cover_path = download_thumbnail(thumb_url, temp_cover)
             if cover_path and os.path.exists(filepath):
-                apply_metadata(filepath, display_title, display_author, album, cover_path)
+                apply_metadata(filepath, display_title, display_author, album, cover_path, genre)
         else:
             # Apply metadata without cover
             if os.path.exists(filepath):
-                apply_metadata(filepath, display_title, display_author, album, None)
+                apply_metadata(filepath, display_title, display_author, album, None, genre)
 
         # If Music auto-import exists, move the file there after all processing
         from .config import MUSIC_AUTO_ADD, MUSIC_AUTO_ADD_EXISTS

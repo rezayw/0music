@@ -1,11 +1,11 @@
 # settings/apply_metadata.py
 
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, APIC
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, APIC, TCON
 from mutagen.mp3 import MP3
 import os
 import mimetypes
 
-def apply_metadata(file_path, title, artist, album, thumbnail_path=None):
+def apply_metadata(file_path, title, artist, album, thumbnail_path=None, genre=None):
     try:
         audio = MP3(file_path, ID3=ID3)
 
@@ -15,6 +15,8 @@ def apply_metadata(file_path, title, artist, album, thumbnail_path=None):
         audio["TIT2"] = TIT2(encoding=3, text=title or "Unknown Title")
         audio["TPE1"] = TPE1(encoding=3, text=artist or "Unknown Artist")
         audio["TALB"] = TALB(encoding=3, text=album or "Unknown Album")
+        if genre:
+            audio["TCON"] = TCON(encoding=3, text=genre)
 
         if thumbnail_path and os.path.exists(thumbnail_path):
             with open(thumbnail_path, 'rb') as img:
