@@ -180,17 +180,21 @@ class MusicDownloaderApp:
         label.pack(anchor="w", padx=15, pady=(5, 15))
 
     def build_download_button(self):
+        # Container frame to keep button and progress bar together
+        self.download_frame = tk.Frame(self.root, bg=self.colors["bg"])
+        self.download_frame.pack(padx=15, pady=5, fill="x")
+        
         self.download_button = tk.Button(
-            self.root, text="Download", command=self.start_download_thread,
+            self.download_frame, text="Download", command=self.start_download_thread,
             bg=self.colors["accent"], fg="black", font=(self.font, 12, "bold"),
             relief="flat", padx=10, pady=8, cursor="hand2"
         )
-        self.download_button.pack(padx=15, pady=5, fill="x")
+        self.download_button.pack(fill="x")
         self.download_button.bind("<Enter>", lambda e: self.download_button.config(bg="#1AA34A"))
         self.download_button.bind("<Leave>", lambda e: self.download_button.config(bg=self.colors["accent"]))
 
         self.download_progress = ttk.Progressbar(
-            self.root, 
+            self.download_frame, 
             mode="indeterminate",
             style="TProgressbar",
             length=308
@@ -389,7 +393,7 @@ class MusicDownloaderApp:
         self.stop_playback()
 
         self.download_button.config(state=tk.DISABLED, text="Downloading...")
-        self.download_progress.pack(pady=(0, 5), padx=15, fill="x")
+        self.download_progress.pack(pady=(5, 0), fill="x")
         self.download_progress.start(15)
         threading.Thread(target=self.download_audio_process, daemon=True).start()
 
