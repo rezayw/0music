@@ -1,5 +1,5 @@
-yt-dlp
-pillow
-requests
-mutagen
-python-vlc
+yt-dlp>=2024.1.0
+pillow>=10.0.0
+requests>=2.31.0
+mutagen>=1.47.0
+python-vlc>=3.0.0

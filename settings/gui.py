@@ -80,6 +80,9 @@ class MusicDownloaderApp:
         self.url_placeholder = "https://youtu.be/example"
         self.title_placeholder = "e.g. My Song"
         self.author_placeholder = "e.g. Artist"
+        
+        # Song list data
+        self.all_songs = []
 
         self.build_ui()
         
@@ -204,13 +207,37 @@ class MusicDownloaderApp:
         wrapper = tk.Frame(self.root, bg=self.colors["bg"])
         wrapper.pack(fill="both", expand=True, padx=15, pady=(10, 20))
 
-        tk.Label(wrapper, text="Downloaded Songs", font=(self.font, 11, "bold"),
-                 fg="white", bg=self.colors["bg"]).pack(anchor="w", pady=(0, 8))
+        # Header with search bar
+        header_frame = tk.Frame(wrapper, bg=self.colors["bg"])
+        header_frame.pack(fill="x", pady=(0, 8))
+        
+        tk.Label(header_frame, text="Downloaded Songs", font=(self.font, 11, "bold"),
+                 fg="white", bg=self.colors["bg"]).pack(side="left")
+
+        # Search entry
+        self.search_var = tk.StringVar()
+        self.search_var.trace_add("write", lambda *args: self.filter_song_list())
+        
+        search_entry = tk.Entry(
+            header_frame, 
+            textvariable=self.search_var,
+            fg=self.colors["placeholder_fg"], 
+            bg=self.colors["entry_bg"],
+            insertbackground=self.colors["entry_fg"], 
+            font=(self.font, 9), 
+            relief="flat",
+            width=15
+        )
+        search_entry.pack(side="right", ipady=2)
+        
+        # Search icon/label
+        tk.Label(header_frame, text="🔍", font=(self.font, 9),
+                 fg=self.colors["muted"], bg=self.colors["bg"]).pack(side="right", padx=(0, 5))
 
         listbox_frame = tk.Frame(wrapper, bg=self.colors["bg"])
         listbox_frame.pack(fill="both", expand=True)
 
-        columns = ("ID", "Title", "Author")
+        columns = ("Title", "Author")
         self.song_list_tree = ttk.Treeview(
             listbox_frame,
             columns=columns,
@@ -219,13 +246,11 @@ class MusicDownloaderApp:
             selectmode="browse"
         )
 
-        self.song_list_tree.heading("ID", text="ID", anchor=tk.W)
         self.song_list_tree.heading("Title", text="Title", anchor=tk.W)
         self.song_list_tree.heading("Author", text="Author", anchor=tk.W)
 
-        self.song_list_tree.column("ID", width=40, stretch=tk.NO, anchor=tk.CENTER)
-        self.song_list_tree.column("Title", width=160, stretch=tk.YES, anchor=tk.W)
-        self.song_list_tree.column("Author", width=100, stretch=tk.YES, anchor=tk.W)
+        self.song_list_tree.column("Title", width=180, stretch=tk.YES, anchor=tk.W)
+        self.song_list_tree.column("Author", width=120, stretch=tk.YES, anchor=tk.W)
 
         style = ttk.Style()
         style.configure("Treeview",
@@ -257,8 +282,22 @@ class MusicDownloaderApp:
         for item in self.song_list_tree.get_children():
             self.song_list_tree.delete(item)
 
-        for song_id, title, author, *_ in get_all_songs():
-            self.song_list_tree.insert("", tk.END, values=(song_id, title or "Unknown", author or "Unknown"))
+        self.all_songs = get_all_songs()
+        for song_id, title, author, *_ in self.all_songs:
+            self.song_list_tree.insert("", tk.END, values=(title or "Unknown", author or "Unknown"))
+
+    def filter_song_list(self):
+        """Filter song list based on search query."""
+        query = self.search_var.get().lower().strip()
+        
+        for item in self.song_list_tree.get_children():
+            self.song_list_tree.delete(item)
+        
+        for song_id, title, author, *_ in self.all_songs:
+            title_str = title or "Unknown"
+            author_str = author or "Unknown"
+            if query in title_str.lower() or query in author_str.lower():
+                self.song_list_tree.insert("", tk.END, values=(title_str, author_str))
 
     def get_entry_value(self, entry, placeholder):
         value = entry.get().strip()

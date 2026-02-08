@@ -1,34 +1,54 @@
 # 🎵 0music Downloader
+
 <p align="center">
-<img width="127" height="652" alt="Screenshot 2025-07-12 at 05 35 45" src="https://github.com/user-attachments/assets/08538513-1826-473f-81fa-776f201d34be" />
+<img src="https://blogger.googleusercontent.com/img/a/AVvXsEgiz-zCQAkhcdeRjOrXMNhI8A6KjJxQcUJ-ufU7BKPr8RlPus0crOjK2tgEqCISYdMx6x1lJ-SOSYz6kfvE4wcp9trMmidJNeA2IjxRBCbL0-Ns_T9KSI7I0zgWmiYeDBPegejdwKi6WyIULcuFxMGfsl2czSQWET-A28i2UADgvN9h8dRCe09HYkTk5ea_" width="320" alt="0music Logo" />
 </p>
 
-**0music Downloader** is a lightweight, offline music downloader built with Python, using `tkinter`, `sqlite`, and multimedia processing modules. This is a desktop application — **no browser, no authentication, no ads** EXPERIMENTAL ONLY.
+**0music Downloader** is a lightweight, offline music downloader built with Python, using `tkinter`, `sqlite`, and multimedia processing modules. This is a desktop application — **no browser, no authentication, no ads**. EXPERIMENTAL ONLY.
 
 ---
 
 ## 🚀 Features
 
-- 📷 **Thumbnail Display**  
-- 🗃️ **Automatic Database Recording**  
-- 🔄 **Auto Convert `.webm` to `.mp3`**  
-- 📝 **Customizable Title**
+- 📷 **Thumbnail Preview** - Auto-fetch and display YouTube video thumbnails
+- 🎵 **Audio Preview** - Play/pause audio directly in the app using VLC
+- 🔍 **Search Songs** - Filter downloaded songs by title or author
+- 📝 **Auto-fill Metadata** - Automatically fetch title and author from URL
+- 🎨 **Cover Art Embedding** - Download and embed album artwork into MP3 files
+- 🏷️ **ID3 Tags** - Full metadata support (Title, Artist, Album, Cover Art)
+- 🗃️ **SQLite Database** - Track all downloaded songs
+- 🔄 **Auto Convert** - Convert to high-quality 320kbps MP3
+- 📝 **Custom Title/Author** - Edit metadata before downloading
 
 ---
 
 ## ✅ Advantages
 
-- 🔓 Bypasses Bot Protections  
-- ⚡ Lightweight and Fast  
-- ❌ No Ads  
+- 🔓 Bypasses Bot Protections
+- ⚡ Lightweight and Fast
+- ❌ No Ads
 - 💡 Simple to Install & Use
+- 🎧 Built-in Audio Preview
+- 🖼️ Professional Album Artwork
 
 ---
 
 ## 🔧 Prerequisites
 
-- Python 3.x  
+- Python 3.x
 - `tkinter` (install via your package manager)
+- VLC Media Player (for audio preview feature)
+- FFmpeg (for audio conversion)
+
+### macOS
+```bash
+brew install python-tk vlc ffmpeg
+```
+
+### Ubuntu/Debian
+```bash
+sudo apt install python3-tk vlc ffmpeg
+```
 
 ---
 
@@ -37,10 +57,22 @@
 ```bash
 git clone https://github.com/rezayw/0music.git
 cd 0music
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## RUN
+## ▶️ Run
 ```bash
 python main.py
 ```
+
+---
+
+## 📦 Dependencies
+
+- `yt-dlp` - YouTube video/audio extraction
+- `pillow` - Image processing
+- `requests` - HTTP requests
+- `mutagen` - MP3 metadata/ID3 tags
+- `python-vlc` - Audio playback
